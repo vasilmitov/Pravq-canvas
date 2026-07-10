@@ -1012,9 +1012,7 @@
 .personalization-panel__action-btn:hover { background: #222; color: var(--accent-color); border-color: var(--accent-color); }
 .personalization-panel__hint { color: #444; font-size: 10px; line-height: 1.5; font-family: var(--font-geist-sans), system-ui, sans-serif; }
 
-/* ===== CANVAS BG OVERRIDES ===== */
-.canvas-container .react-flow__renderer { background: var(--canvas-bg); }
-.canvas-container .react-flow__background { background: var(--canvas-bg); }
+/* CANVAS BG OVERRIDES moved to top of file */
 
 /* ===== LOCKED NODE ===== */
 .workspace-node--locked {
