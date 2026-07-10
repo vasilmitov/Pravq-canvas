@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pravq go</title>
+  <style>
+    body { background:#0a0a0a; color:#e5e5e5; font-family: system-ui, sans-serif; margin:0; padding:16px; width:280px; }
+    h1 { font-size:14px; margin:0 0 12px 0; color:#c9a55c; letter-spacing:0.04em; text-transform:uppercase; }
+    button { display:block; width:100%; padding:10px; margin:6px 0; background:#1a1a1a; color:#ddd; border:1px solid #2a2a2a; border-radius:6px; cursor:pointer; font-size:12px; text-align:left; transition:all 0.1s; }
+    button:hover { background:#222; border-color:#c9a55c; }
+    .status { font-size:10px; color:#666; margin-top:12px; padding-top:8px; border-top:1px solid #2a2a2a; }
+  </style>
+</head>
+<body>
+  <h1>pravq go</h1>
+  <button id="openSidePanel">Open Canvas (Side Panel)</button>
+  <button id="openNewTab">Open Canvas (New Tab)</button>
+  <button id="openOptions">Settings</button>
+  <button id="backupNow">Backup Now</button>
+  <button id="pushRemote">Push to Remote</button>
+  <div class="status" id="status">Ready</div>
+
+  <script>
+    document.getElementById('openSidePanel').addEventListener('click', () => {
+      chrome.sidePanel.open({ windowId: chrome.windows.WINDOW_ID_CURRENT });
+    });
+    document.getElementById('openNewTab').addEventListener('click', () => {
+      chrome.tabs.create({ url: 'newtab.html' });
+    });
+    document.getElementById('openOptions').addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+    });
+    document.getElementById('backupNow').addEventListener('click', async () => {
+      await chrome.runtime.sendMessage({ type: 'CREATE_BACKUP' });
+      document.getElementById('status').textContent = 'Local backup created';
+    });
+    document.getElementById('pushRemote').addEventListener('click', async () => {
+      const res = await chrome.runtime.sendMessage({ type: 'PUSH_REMOTE' });
+      document.getElementById('status').textContent = res.ok ? 'Pushed to remote' : ('Failed: ' + (res.error || 'unknown'));
+    });
+  </script>
+</body>
+</html>

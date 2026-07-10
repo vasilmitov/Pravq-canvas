@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "pravq go — Infinite Canvas",
+  "version": "1.0.0",
+  "description": "A ComfyUI-inspired infinite canvas workspace for notes, markdown, rich text, media, and search.",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "alarms",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}
