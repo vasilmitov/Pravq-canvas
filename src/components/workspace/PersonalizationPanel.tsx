@@ -42,6 +42,9 @@ const PersonalizationPanel = memo(function PersonalizationPanel({
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // If clicked the Settings button, let the button's own onClick toggle the panel closed
+      if (target.closest('[title="Personalization"]')) return;
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
     };
     const timer = setTimeout(() => document.addEventListener('mousedown', handleClick), 0);

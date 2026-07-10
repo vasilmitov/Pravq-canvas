@@ -204,6 +204,8 @@ function cloneNodeForPaste(original: Node<WorkspaceNodeData>): Node<WorkspaceNod
   };
 }
 
+let settingsSaveTimeout: ReturnType<typeof setTimeout> | undefined;
+
 export const useCanvasStore = create<CanvasStore>((set, get) => ({
   nodes: [],
   edges: [],
@@ -710,6 +712,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   updateSettings: (updates) => {
     set({ settings: { ...get().settings, ...updates } });
+    if (settingsSaveTimeout) clearTimeout(settingsSaveTimeout);
+    settingsSaveTimeout = setTimeout(() => {
+      get().save();
+    }, 500);
   },
 
   togglePrivacyMode: () => {
