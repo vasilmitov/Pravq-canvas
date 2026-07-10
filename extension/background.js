@@ -16,9 +16,7 @@ async function setupAlarms() {
     // Get current settings with defaults
     const settings = await chrome.storage.sync.get({
       autoBackupEnabled: true,
-      autoBackupIntervalMin: 5,
-      remoteBackupEnabled: false,
-      remoteBackupIntervalMin: 30
+      autoBackupIntervalMin: 60
     });
 
     if (settings.autoBackupEnabled) {
@@ -27,24 +25,51 @@ async function setupAlarms() {
     } else {
       console.log('Local backup alarm is disabled.');
     }
-
-    if (settings.remoteBackupEnabled) {
-      chrome.alarms.create('remoteBackup', { periodInMinutes: settings.remoteBackupIntervalMin });
-      console.log(`Remote backup alarm scheduled every ${settings.remoteBackupIntervalMin} minutes.`);
-    } else {
-      console.log('Remote backup alarm is disabled.');
-    }
   } catch (err) {
     console.error('Error setting up alarms:', err);
   }
 }
 
-// Create periodic alarms on install
+// Create periodic alarms and context menu on install
 chrome.runtime.onInstalled.addListener(async () => {
   await setupAlarms();
-  // Open side panel on action click
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  chrome.contextMenus.create({
+    id: "open-canvas",
+    title: "📝 Open pravq go Canvas",
+    contexts: ["all"]
+  });
   console.log('pravq go extension installed');
+});
+
+async function openCanvasTab() {
+  const url = chrome.runtime.getURL('canvas.html');
+  const tabs = await chrome.tabs.query({});
+  const canvasTab = tabs.find(t => t.url && t.url.startsWith(url));
+  
+  if (canvasTab) {
+    // Focus existing tab
+    await chrome.tabs.update(canvasTab.id, { active: true });
+    await chrome.windows.update(canvasTab.windowId, { focused: true });
+  } else {
+    // Create new tab
+    await chrome.tabs.create({ url });
+  }
+}
+
+chrome.action.onClicked.addListener(() => {
+  openCanvasTab();
+});
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  if (info.menuItemId === "open-canvas") {
+    openCanvasTab();
+  }
+});
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "_execute_action") {
+    openCanvasTab();
+  }
 });
 
 // Verify alarms exist on startup/activation (lightweight check to avoid re-writing alarms on every wakeup)
@@ -60,9 +85,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'sync') {
     const alarmRelatedKeys = [
       'autoBackupEnabled',
-      'autoBackupIntervalMin',
-      'remoteBackupEnabled',
-      'remoteBackupIntervalMin'
+      'autoBackupIntervalMin'
     ];
     const changedKeys = Object.keys(changes);
     const hasAlarmChanges = changedKeys.some(key => alarmRelatedKeys.includes(key));
@@ -81,15 +104,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
     if (alarm.name === 'localBackup') {
       await createBackup(canvasState);
-    } else if (alarm.name === 'remoteBackup') {
-      const settings = await chrome.storage.sync.get([
-        'remoteBackupEnabled',
-        'remoteBackupUrl',
-        'remoteBackupAuthHeader'
-      ]);
-      if (settings.remoteBackupEnabled && settings.remoteBackupUrl) {
-        await pushRemoteBackup(canvasState, settings);
-      }
     }
   } catch (err) {
     console.error('Alarm handler error:', err);
@@ -110,23 +124,6 @@ async function createBackup(state) {
   }
 }
 
-async function pushRemoteBackup(state, settings) {
-  const res = await fetch(settings.remoteBackupUrl, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(settings.remoteBackupAuthHeader
-        ? { Authorization: `Bearer ${settings.remoteBackupAuthHeader}` }
-        : {}),
-    },
-    body: JSON.stringify({
-      canvas: state,
-      savedAt: new Date().toISOString(),
-    }),
-  });
-  if (!res.ok) throw new Error(`Remote backup failed: ${res.status}`);
-}
-
 // Listen for messages from content scripts (side panel / popup)
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'GET_STATE') {
@@ -142,20 +139,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       // Non-blocking background sync operations on change
       try {
         const settings = await chrome.storage.sync.get({
-          remoteBackupEnabled: false,
-          remoteBackupUrl: '',
-          remoteBackupAuthHeader: '',
-          remoteBackupOnEveryChange: false,
           googleDriveSyncEnabled: false
         });
 
-        // 1. Remote Backup URL push
-        if (settings.remoteBackupEnabled && settings.remoteBackupOnEveryChange && settings.remoteBackupUrl) {
-          await pushRemoteBackup(msg.state, settings);
-          console.log('State changes pushed to remote backup successfully.');
-        }
-
-        // 2. Google Drive AppData sync push
+        // 1. Google Drive AppData sync push
         if (settings.googleDriveSyncEnabled) {
           try {
             const token = await getAuthToken(false);
@@ -180,28 +167,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-  if (msg.type === 'PUSH_REMOTE') {
-    chrome.storage.local.get(STATE_KEY).then(async ({ [STATE_KEY]: state }) => {
-      const settings = await chrome.storage.sync.get([
-        'remoteBackupEnabled', 'remoteBackupUrl', 'remoteBackupAuthHeader'
-      ]);
-      if (state && settings.remoteBackupEnabled && settings.remoteBackupUrl) {
-        try {
-          await pushRemoteBackup(state, settings);
-          sendResponse({ ok: true });
-        } catch (e) {
-          sendResponse({ ok: false, error: e.message });
-        }
-      } else {
-        sendResponse({ ok: false, error: 'Remote backup not configured' });
-      }
-    });
-    return true;
-  }
+
   if (msg.type === 'RECREATE_ALARMS') {
     setupAlarms().then(() => {
       sendResponse({ ok: true });
     });
+    return true;
+  }
+  if (msg.type === 'NOTIFY_CANVAS_RELOAD') {
+    // Broadcast a reload signal to all open extension pages (new tab, side panel).
+    // The canvas listens for this and calls load() to refresh its state.
+    chrome.runtime.sendMessage({ type: 'CANVAS_STATE_UPDATED' });
+    sendResponse({ ok: true });
     return true;
   }
 });

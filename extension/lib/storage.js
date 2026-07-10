@@ -58,7 +58,7 @@ export async function getSettings() {
     return new Promise((resolve) => {
       chrome.storage.sync.get(
         {
-          autoBackupEnabled: true, autoBackupIntervalMin: 5,
+          autoBackupEnabled: true, autoBackupIntervalMin: 60,
           remoteBackupEnabled: false, remoteBackupUrl: '',
           remoteBackupAuthHeader: '', remoteBackupIntervalMin: 30,
           remoteBackupOnEveryChange: false,

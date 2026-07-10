@@ -781,7 +781,6 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   initAutoSave: () => {
     let timeout: ReturnType<typeof setTimeout>;
-    let backupInterval: ReturnType<typeof setInterval>;
     const debouncedSave = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => get().save(), 2000);
@@ -795,11 +794,9 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         debouncedSave();
       }
     });
-    backupInterval = setInterval(() => get().backup(), 5 * 60 * 1000);
     return () => {
       unsub();
       clearTimeout(timeout);
-      clearInterval(backupInterval);
     };
   },
 }));

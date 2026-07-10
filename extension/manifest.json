@@ -8,7 +8,8 @@
     "storage",
     "alarms",
     "unlimitedStorage",
-    "identity"
+    "identity",
+    "contextMenus"
   ],
   "oauth2": {
     "client_id": "550337992817-43kt8sikpoes8105nhvadns9blml53fj.apps.googleusercontent.com",
@@ -20,14 +21,18 @@
   "host_permissions": [
     "<all_urls>"
   ],
-  "action": {
-    "default_popup": "popup.html"
+  "action": {},
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open Canvas"
+    }
   },
   "side_panel": {
     "default_path": "sidepanel.html"
-  },
-  "chrome_url_overrides": {
-    "newtab": "newtab.html"
   },
   "options_page": "options.html",
   "background": {

@@ -151,6 +151,37 @@
       background: #3f3f46;
       border-color: #52525b;
     }
+    #exportCanvas, #importCanvas {
+      background: #27272a;
+      color: #fafafa;
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    }
+    #exportCanvas:hover, #importCanvas:hover, #restoreBackupBtn:hover:not(:disabled) {
+      background: #3f3f46;
+      border-color: #52525b;
+    }
+    #restoreBackupBtn {
+      background: #27272a;
+      color: #fafafa;
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    #restoreBackupBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
     .hint {
       color: #71717a;
       font-size: 11px;
@@ -182,6 +213,14 @@
 <body>
   <h1>pravq go — Settings</h1>
 
+  <!-- Data Loss Warning Card -->
+  <div class="card" style="border-color: #c05050;">
+    <h2 style="color: #fca5a5;">🚨 Important Data Notice</h2>
+    <div class="hint" style="color: #fecaca; font-size: 12px;">
+      If you <strong>uninstall this extension</strong> or <strong>reinstall Chrome</strong>, your local notes will be permanently lost! We highly recommend connecting Google Drive below, or occasionally exporting your canvas to a file to keep it safe.
+    </div>
+  </div>
+
   <!-- Local Backup Card -->
   <div class="card">
     <h2>Auto Backup (Local)</h2>
@@ -198,36 +237,31 @@
     </div>
   </div>
 
-  <!-- Remote Backup Card -->
+  <!-- Local File Backup Card -->
   <div class="card">
-    <h2>Remote Backup</h2>
-    <div class="row">
-      <label>Enable remote backup to a URL</label>
-      <label class="switch">
-        <input type="checkbox" id="remoteBackupEnabled" />
-        <span class="slider"></span>
-      </label>
+    <h2>Local File Backup</h2>
+    <div class="row row--vertical">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="button" id="exportCanvas">⬇ Export Canvas</button>
+        <button type="button" id="importCanvas">⬆ Import Canvas</button>
+      </div>
+      <div class="hint">
+        Export saves your full canvas as a <code>.json</code> file you can store anywhere.
+        Import restores a canvas from a previously exported file.
+        <strong>A local backup is saved automatically before any import.</strong>
+      </div>
     </div>
-    <div class="row">
-      <label>Remote backup URL (PUT endpoint)</label>
-      <input type="text" id="remoteBackupUrl" placeholder="https://your-server.com/canvas" />
+    
+    <div class="row row--vertical" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #27272a;">
+      <label style="color: #fafafa; font-weight: 500;">Restore from Internal Backup</label>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <select id="backupSelect">
+          <option value="">Loading backups...</option>
+        </select>
+        <button type="button" id="restoreBackupBtn" disabled>Restore Selected Backup</button>
+      </div>
+      <div id="fileBackupStatus" style="font-size:11px; min-height:16px; color:#71717a; margin-top:4px;"></div>
     </div>
-    <div class="row">
-      <label>Auth token (Bearer)</label>
-      <input type="password" id="remoteBackupAuthHeader" placeholder="optional API key" />
-    </div>
-    <div class="row">
-      <label>Remote sync interval (minutes)</label>
-      <input type="number" id="remoteBackupIntervalMin" min="1" max="1440" />
-    </div>
-    <div class="row">
-      <label>Push after every edit (debounced 2s)</label>
-      <label class="switch">
-        <input type="checkbox" id="remoteBackupOnEveryChange" />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="hint">Remote endpoint receives: <code>PUT {url} Authorization: Bearer {token} {"canvas": {...}}</code></div>
   </div>
 
   <!-- Google Drive Sync Card -->
@@ -272,12 +306,17 @@
   <!-- Canvas Preferences Card -->
   <div class="card">
     <h2>Canvas</h2>
-    <div class="row">
-      <label>Enable privacy mode on launch</label>
-      <label class="switch">
-        <input type="checkbox" id="privacyModeOnOpen" />
-        <span class="slider"></span>
-      </label>
+    <div class="row row--vertical">
+      <div class="row" style="width:100%; margin:0;">
+        <label>Enable privacy mode on launch</label>
+        <label class="switch">
+          <input type="checkbox" id="privacyModeOnOpen" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="hint" style="margin-top:2px;">
+        Blurs all notes and images on the canvas until you click the Eye icon to reveal them. Perfect for screen sharing or working in public spaces.
+      </div>
     </div>
   </div>
 

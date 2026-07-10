@@ -132,3 +132,15 @@ if (rootEl) {
   createRoot(rootEl).render(React.createElement(ExtensionApp));
 }
 
+// ─── Visibility Sync ─────────────────────────────────────────────────────────
+// Automatically reload the canvas state from local storage whenever this tab 
+// becomes active/visible again. This acts as a robust safety net against 
+// multi-tab conflicts if the user forces open multiple canvas tabs.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      useCanvasStore.getState().load();
+    }
+  });
+}
+
