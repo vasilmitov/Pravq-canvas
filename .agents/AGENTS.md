@@ -55,3 +55,37 @@ To load/update the extension in Chrome:
 ### TypeScript Generic Constraints (React Flow v12)
 * Custom node data (`WorkspaceNodeData`) must be defined as a TypeScript `type` rather than an `interface` to implicitly satisfy xyflow's generic `Record<string, unknown>` constraint without requiring index signature boilerplate.
 * To avoid DOM naming conflicts with global standard browser classes, cast DOM elements using `as globalThis.Node` rather than `as Node` (which conflicts with xyflow's custom `Node` definition).
+
+---
+
+## 4. Google Drive AppData Sync Pattern
+
+When implementing cross-device synchronization:
+* **Storage Limits**: Direct sync via `chrome.storage.sync` has strict quotas (100 KB total, 8 KB per item). Canvas JSON states easily exceed this.
+* **Google Drive appDataFolder**: The standard solution is to sync to the user's hidden, app-specific Google Drive folder.
+  * **Permissions**: Require `"identity"` in `manifest.json` permissions, plus the `"oauth2"` config block with scopes:
+    - `"https://www.googleapis.com/auth/drive.appdata"` (access is strictly isolated to the app folder; the extension cannot see other user files).
+    - `"https://www.googleapis.com/auth/userinfo.email"` (to fetch and display the user's connected account in Settings).
+  * **OAuth Client ID Binding**: During development, the OAuth client ID in the Google Cloud Console must be set as a **Chrome Extension** application type and bound to your local unpacked Extension ID.
+
+---
+
+## 5. Service Worker Ephemerality & Alarms Optimization
+
+* **Variable State Loss**: Manifest V3 Service Workers terminate after ~30s of inactivity. **Never** store state in global memory variables. Persist state to `chrome.storage`.
+* **Timers**: Use `chrome.alarms` instead of `setInterval` or `setTimeout` (which are cleared when the worker terminates).
+* **Alarms Optimization**: 
+  * Chrome alarms are persistent across service worker restarts and browser boots.
+  * **Do not** run `chrome.alarms.clearAll()` or `chrome.alarms.create()` at the top-level of the script on every service worker activation (wakeup), as this triggers unnecessary writes.
+  * Register alarms during `chrome.runtime.onInstalled.addListener`.
+  * Listen to `chrome.storage.onChanged` to dynamically adjust intervals when settings update.
+  * Use a lightweight `chrome.alarms.getAll` check at top-level startup to verify alarms exist without recreating them.
+
+---
+
+## 6. Testing Extensions with Chrome DevTools MCP
+
+* **Surface Identification**: Use `list_pages` to locate the extension's target pages (e.g. `sidepanel.html`, `newtab.html`, `options.html`).
+* **Interactive Testing**: Use `select_page` to focus on the target tab, then `take_snapshot` to extract element `uid`s. Use `click`, `fill`, and `type_text` to verify canvas behavior.
+* **Network & Log Auditing**: Use `list_network_requests` and `list_console_messages` against the background service worker page to verify auto-saves, alarm triggers, and remote API push status.
+

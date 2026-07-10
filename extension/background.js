@@ -1,17 +1,76 @@
 // background.js — Service worker for pravq go extension
 // Handles: side panel lifecycle, periodic backups (alarms), remote sync
 
+import { uploadState, getAuthToken } from './lib/gdrive.js';
+
 const STATE_KEY = 'canvasState';
 const BACKUP_PREFIX = 'backup_';
 const MAX_BACKUPS = 50;
 
-// Create periodic alarms
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create('localBackup', { periodInMinutes: 5 });
-  chrome.alarms.create('remoteBackup', { periodInMinutes: 30 });
+// Setup alarms dynamically based on settings
+async function setupAlarms() {
+  try {
+    // Clear existing alarms to avoid duplicates or old schedules
+    await chrome.alarms.clearAll();
+
+    // Get current settings with defaults
+    const settings = await chrome.storage.sync.get({
+      autoBackupEnabled: true,
+      autoBackupIntervalMin: 5,
+      remoteBackupEnabled: false,
+      remoteBackupIntervalMin: 30
+    });
+
+    if (settings.autoBackupEnabled) {
+      chrome.alarms.create('localBackup', { periodInMinutes: settings.autoBackupIntervalMin });
+      console.log(`Local backup alarm scheduled every ${settings.autoBackupIntervalMin} minutes.`);
+    } else {
+      console.log('Local backup alarm is disabled.');
+    }
+
+    if (settings.remoteBackupEnabled) {
+      chrome.alarms.create('remoteBackup', { periodInMinutes: settings.remoteBackupIntervalMin });
+      console.log(`Remote backup alarm scheduled every ${settings.remoteBackupIntervalMin} minutes.`);
+    } else {
+      console.log('Remote backup alarm is disabled.');
+    }
+  } catch (err) {
+    console.error('Error setting up alarms:', err);
+  }
+}
+
+// Create periodic alarms on install
+chrome.runtime.onInstalled.addListener(async () => {
+  await setupAlarms();
   // Open side panel on action click
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   console.log('pravq go extension installed');
+});
+
+// Verify alarms exist on startup/activation (lightweight check to avoid re-writing alarms on every wakeup)
+chrome.alarms.getAll((alarms) => {
+  if (alarms.length === 0) {
+    console.log('No alarms found on startup/activation, initializing...');
+    setupAlarms();
+  }
+});
+
+// Watch for settings changes to dynamically re-adjust alarms
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync') {
+    const alarmRelatedKeys = [
+      'autoBackupEnabled',
+      'autoBackupIntervalMin',
+      'remoteBackupEnabled',
+      'remoteBackupIntervalMin'
+    ];
+    const changedKeys = Object.keys(changes);
+    const hasAlarmChanges = changedKeys.some(key => alarmRelatedKeys.includes(key));
+    if (hasAlarmChanges) {
+      console.log('Detected settings changes affecting alarms. Re-scheduling...');
+      setupAlarms();
+    }
+  }
 });
 
 // Handle alarms
@@ -77,8 +136,40 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true; // async
   }
   if (msg.type === 'SAVE_STATE') {
-    chrome.storage.local.set({ [STATE_KEY]: msg.state }).then(() => {
+    chrome.storage.local.set({ [STATE_KEY]: msg.state }).then(async () => {
       sendResponse({ ok: true });
+
+      // Non-blocking background sync operations on change
+      try {
+        const settings = await chrome.storage.sync.get({
+          remoteBackupEnabled: false,
+          remoteBackupUrl: '',
+          remoteBackupAuthHeader: '',
+          remoteBackupOnEveryChange: false,
+          googleDriveSyncEnabled: false
+        });
+
+        // 1. Remote Backup URL push
+        if (settings.remoteBackupEnabled && settings.remoteBackupOnEveryChange && settings.remoteBackupUrl) {
+          await pushRemoteBackup(msg.state, settings);
+          console.log('State changes pushed to remote backup successfully.');
+        }
+
+        // 2. Google Drive AppData sync push
+        if (settings.googleDriveSyncEnabled) {
+          try {
+            const token = await getAuthToken(false);
+            if (token) {
+              await uploadState(token, msg.state);
+              console.log('State changes successfully uploaded to Google Drive AppData.');
+            }
+          } catch (gdriveErr) {
+            console.error('Google Drive auto-save upload failed:', gdriveErr);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to run background sync/backup operations:', err);
+      }
     });
     return true;
   }
@@ -107,4 +198,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
+  if (msg.type === 'RECREATE_ALARMS') {
+    setupAlarms().then(() => {
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
 });
+

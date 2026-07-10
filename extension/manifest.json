@@ -7,8 +7,16 @@
     "sidePanel",
     "storage",
     "alarms",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "identity"
   ],
+  "oauth2": {
+    "client_id": "550337992817-43kt8sikpoes8105nhvadns9blml53fj.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.appdata",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+  },
   "host_permissions": [
     "<all_urls>"
   ],

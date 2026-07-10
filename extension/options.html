@@ -75,6 +75,19 @@
     <input type="checkbox" id="syncTabsToCanvas" />
   </div>
 
+  <h2>Google Drive Sync</h2>
+  <div class="row">
+    <label>Enable Google Drive cloud sync</label>
+    <input type="checkbox" id="googleDriveSyncEnabled" />
+  </div>
+  <div class="row" style="align-items: flex-start; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+    <button type="button" id="gdriveConnect" style="margin-top: 0; background: #3b5998; color: #fff; text-shadow: none;">Connect Google Drive</button>
+    <div id="gdriveStatus" style="font-size: 12px; color: #aaa; margin-top: 4px;">Status: Not connected</div>
+    <div class="hint" style="max-width: 500px; line-height: 1.4; color: #777;">
+      <strong>Security & Privacy Note:</strong> This feature uses Google Drive AppData storage. The extension is strictly restricted to its own private folder and <strong>cannot access or view</strong> any of your other personal files or folders in your drive. If disabled, all canvas data remains stored locally.
+    </div>
+  </div>
+
   <h2>Canvas</h2>
   <div class="row">
     <label>Enable privacy mode on launch</label>
@@ -91,6 +104,6 @@
 
   <button id="save">Save Settings <span class="saved" id="saved">✓ saved</span></button>
 
-  <script src="options.js"></script>
+  <script type="module" src="options.js"></script>
 </body>
 </html>
