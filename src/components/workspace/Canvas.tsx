@@ -11,6 +11,7 @@ import {
   useReactFlow,
   type Connection,
   type Edge,
+  type Node,
   addEdge,
 } from '@xyflow/react';
 import MarkdownNode from './nodes/MarkdownNode';
@@ -126,7 +127,7 @@ function CanvasInner() {
     return () => container.removeEventListener('dblclick', handleDblClick);
   }, [screenToFlowPosition, isSettingDefaultPoint]);
 
-  const handlePaneClick = useCallback((event: React.MouseEvent) => {
+  const handlePaneClick = useCallback((event: React.MouseEvent | MouseEvent) => {
     if (isSettingDefaultPoint) {
       const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY });
       const vp = getViewport();
@@ -151,7 +152,7 @@ function CanvasInner() {
   }, [pushHistory]);
 
   // One-way connections: only allow source→target (right→left), never target→anything
-  const isValidConnection = useCallback((connection: Connection) => {
+  const isValidConnection = useCallback((connection: Connection | Edge) => {
     // Only allow connections originating from a "source" handle
     return connection.sourceHandle === 'source';
   }, []);
@@ -286,7 +287,7 @@ function CanvasInner() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [getSelectedNodeIds, removeSelectedNodes, groupAroundNodes, copySelectedNodes, pasteNodes, screenToFlowPosition, isSettingDefaultPoint, showSearch, showShortcuts, toggleShortcuts, togglePrivacyMode]);
 
-  const handlePaneContextMenu = useCallback((event: React.MouseEvent) => {
+  const handlePaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     if (isSettingDefaultPoint) return;
     event.preventDefault();
     setContextMenu({ screenPos: { x: event.clientX, y: event.clientY }, flowPos: screenToFlowPosition({ x: event.clientX, y: event.clientY }), targetNodeIds: [] });
@@ -388,7 +389,7 @@ function CanvasInner() {
 
   return (
     <div className={cn('canvas-container', isSettingDefaultPoint && 'canvas-container--setting-point')} ref={containerRef}>
-      <ReactFlow
+      <ReactFlow<Node<WorkspaceNodeData>, Edge>
         nodes={nodes} edges={visibleEdges}
         onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
         onConnect={handleConnect}

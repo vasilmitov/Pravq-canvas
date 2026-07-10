@@ -63,10 +63,10 @@ function RichTextNodeComponent({ id, data, selected }: NodeProps<Node<WorkspaceN
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as globalThis.Node)) {
         setListDropdownOpen(false);
       }
-      if (paletteRef.current && !paletteRef.current.contains(e.target as Node)) {
+      if (paletteRef.current && !paletteRef.current.contains(e.target as globalThis.Node)) {
         setPaletteOpen(false);
       }
     };

@@ -12,7 +12,7 @@ export interface RichBlock {
   highlighted?: boolean;
 }
 
-export interface WorkspaceNodeData {
+export type WorkspaceNodeData = {
   nodeType: NodeType;
   title: string;
   content: string;
@@ -29,7 +29,7 @@ export interface WorkspaceNodeData {
   // Media-specific
   mediaUrl?: string;
   mediaType?: 'image' | 'video' | 'embed';
-}
+};
 
 export type GridPattern = 'none' | 'dots' | 'lines' | 'cross';
 

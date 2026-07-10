@@ -290,11 +290,11 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         const filteredChanges = changes.filter(
           (c) => !(c.type === 'remove' && childIds.has(c.id))
         );
-        set({ nodes: applyNodeChanges(filteredChanges, ungroupedNodes) });
+        set({ nodes: applyNodeChanges<Node<WorkspaceNodeData>>(filteredChanges, ungroupedNodes) });
         return;
       }
     }
-    set({ nodes: applyNodeChanges(changes, get().nodes) });
+    set({ nodes: applyNodeChanges<Node<WorkspaceNodeData>>(changes, get().nodes) });
   },
 
   onEdgesChange: (changes) => {
