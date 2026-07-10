@@ -20,7 +20,11 @@ export async function getUserEmail(token) {
   const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
     headers: { Authorization: `Bearer ${token}` }
   });
-  if (!res.ok) throw new Error(`Failed to fetch user email: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Failed to fetch user email: ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   const data = await res.json();
   return data.email;
 }
@@ -38,7 +42,11 @@ async function findFileId(token) {
   const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id)`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  if (!res.ok) throw new Error(`Drive search failed: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Drive search failed: ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   const data = await res.json();
   return data.files && data.files.length > 0 ? data.files[0].id : null;
 }
@@ -51,7 +59,11 @@ export async function downloadState(token) {
   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  if (!res.ok) throw new Error(`Drive download failed: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Drive download failed: ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -74,7 +86,11 @@ export async function uploadState(token, state) {
       },
       body: JSON.stringify(metadata)
     });
-    if (!createRes.ok) throw new Error(`Drive file metadata creation failed: ${createRes.status}`);
+    if (!createRes.ok) {
+      const err = new Error(`Drive file metadata creation failed: ${createRes.status}`);
+      err.status = createRes.status;
+      throw err;
+    }
     const fileData = await createRes.json();
     fileId = fileData.id;
   }
@@ -88,6 +104,11 @@ export async function uploadState(token, state) {
     },
     body: bodyContent
   });
-  if (!uploadRes.ok) throw new Error(`Drive content upload failed: ${uploadRes.status}`);
+  if (!uploadRes.ok) {
+    const err = new Error(`Drive content upload failed: ${uploadRes.status}`);
+    err.status = uploadRes.status;
+    throw err;
+  }
   return true;
 }
+

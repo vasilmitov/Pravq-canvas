@@ -5,21 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>pravq go</title>
   <style>
-    body { background:#0a0a0a; color:#e5e5e5; font-family: system-ui, sans-serif; margin:0; padding:16px; width:280px; }
-    h1 { font-size:14px; margin:0 0 12px 0; color:#c9a55c; letter-spacing:0.04em; text-transform:uppercase; }
-    button { display:block; width:100%; padding:10px; margin:6px 0; background:#1a1a1a; color:#ddd; border:1px solid #2a2a2a; border-radius:6px; cursor:pointer; font-size:12px; text-align:left; transition:all 0.1s; }
-    button:hover { background:#222; border-color:#c9a55c; }
-    .status { font-size:10px; color:#666; margin-top:12px; padding-top:8px; border-top:1px solid #2a2a2a; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      background: #09090b;
+      color: #f4f4f5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 16px;
+      width: 280px;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #27272a;
+    }
+    .logo {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: #c9a55c;
+      color: #09090b;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    h1 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      background: #121214;
+      color: #d4d4d8;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    button:hover {
+      background: #18181b;
+      border-color: rgba(201, 165, 92, 0.4);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .btn-arrow {
+      color: #c9a55c;
+      font-size: 11px;
+    }
+    .status {
+      font-size: 11px;
+      color: #71717a;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #27272a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .status-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #10b981;
+    }
   </style>
 </head>
 <body>
-  <h1>pravq go</h1>
-  <button id="openSidePanel">Open Canvas (Side Panel)</button>
-  <button id="openNewTab">Open Canvas (New Tab)</button>
-  <button id="openOptions">Settings</button>
-  <button id="backupNow">Backup Now</button>
-  <button id="pushRemote">Push to Remote</button>
-  <div class="status" id="status">Ready</div>
+  <div class="header">
+    <div class="logo">P</div>
+    <h1>pravq go</h1>
+  </div>
+  <div class="btn-group">
+    <button id="openSidePanel">Open Canvas (Side Panel) <span class="btn-arrow">→</span></button>
+    <button id="openNewTab">Open Canvas (New Tab) <span class="btn-arrow">→</span></button>
+    <button id="openOptions">Settings <span class="btn-arrow">→</span></button>
+    <button id="backupNow">Backup Now <span class="btn-arrow">⚡</span></button>
+    <button id="pushRemote">Push to Remote <span class="btn-arrow">☁</span></button>
+  </div>
+  <div class="status">
+    <span>Status</span>
+    <div class="status-info">
+      <span class="status-dot"></span>
+      <span id="status" style="color: #a1a1aa;">Ready</span>
+    </div>
+  </div>
 
   <script>
     document.getElementById('openSidePanel').addEventListener('click', () => {
@@ -36,9 +138,12 @@
       document.getElementById('status').textContent = 'Local backup created';
     });
     document.getElementById('pushRemote').addEventListener('click', async () => {
+      const statusText = document.getElementById('status');
+      statusText.textContent = 'Syncing...';
       const res = await chrome.runtime.sendMessage({ type: 'PUSH_REMOTE' });
-      document.getElementById('status').textContent = res.ok ? 'Pushed to remote' : ('Failed: ' + (res.error || 'unknown'));
+      statusText.textContent = res.ok ? 'Pushed to remote' : ('Failed: ' + (res.error || 'unknown'));
     });
   </script>
 </body>
 </html>
+

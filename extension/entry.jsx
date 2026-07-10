@@ -11,7 +11,7 @@ import '../src/app/globals.css';
 // We import the store and override save/load/backup to call chrome.storage.
 import { useCanvasStore } from '../src/store/useCanvasStore';
 import { saveState, loadState, createBackup } from './lib/storage.js';
-import { getAuthToken, downloadState, uploadState } from './lib/gdrive.js';
+import { getAuthToken, downloadState, uploadState, removeCachedToken } from './lib/gdrive.js';
 
 window.useCanvasStore = useCanvasStore;
 
@@ -77,7 +77,23 @@ useCanvasStore.setState({
             }
           }
         } catch (gdriveErr) {
-          console.error('Google Drive sync load error:', gdriveErr);
+          // If the token is rejected (401 Unauthorized or 403 Forbidden),
+          // the cached token is stale. Remove it and reset sync so the
+          // user is prompted to reconnect rather than seeing errors on every load.
+          const status = gdriveErr && gdriveErr.status;
+          if (status === 401 || status === 403) {
+            console.warn('Google Drive: stale/invalid token detected. Clearing cached token and disabling sync.');
+            try {
+              const badToken = await getAuthToken(false);
+              if (badToken) await removeCachedToken(badToken);
+            } catch (_) { /* ignore */ }
+            chrome.storage.sync.set({
+              googleDriveSyncEnabled: false,
+              googleDriveSyncEmail: ''
+            });
+          } else {
+            console.warn('Google Drive sync skipped (non-auth error):', gdriveErr.message || gdriveErr);
+          }
         }
       }
 

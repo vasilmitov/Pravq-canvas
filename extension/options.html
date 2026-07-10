@@ -5,101 +5,286 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>pravq go — Settings</title>
   <style>
-    body { background:#0a0a0a; color:#e5e5e5; font-family: system-ui, sans-serif; margin:0; padding:32px; max-width:680px; }
-    h1 { color:#c9a55c; letter-spacing:0.04em; text-transform:uppercase; font-size:18px; border-bottom:1px solid #2a2a2a; padding-bottom:10px; }
-    h2 { color:#ddd; font-size:14px; margin-top:28px; }
-    .row { display:flex; align-items:center; gap:12px; margin:10px 0; padding:8px 0; }
-    label { flex:1; font-size:13px; color:#bbb; }
-    input[type=text], input[type=password], input[type=number], select {
-      background:#141414; color:#ddd; border:1px solid #2a2a2a; border-radius:4px; padding:6px 10px; font-size:12px; width:220px;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      background: #09090b;
+      color: #f4f4f5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 40px 24px;
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.5;
     }
-    input[type=checkbox] { width:18px; height:18px; accent-color:#c9a55c; }
-    button { background:#c9a55c; color:#0a0a0a; border:none; border-radius:6px; padding:10px 20px; font-size:12px; font-weight:600; cursor:pointer; margin-top:20px; text-transform:uppercase; letter-spacing:0.04em; }
-    button:hover { opacity:0.85; }
-    .hint { color:#555; font-size:11px; margin-top:4px; }
-    .saved { color:#6a9a6a; font-size:11px; margin-left:12px; opacity:0; transition:opacity 0.3s; }
-    .saved.show { opacity:1; }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #27272a;
+      padding-bottom: 14px;
+    }
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fafafa;
+      margin: 0 0 16px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card {
+      background: #121214;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 0;
+    }
+    .row--vertical {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    label {
+      font-size: 13px;
+      color: #a1a1aa;
+      font-weight: 400;
+    }
+    input[type=text], input[type=password], input[type=number], select {
+      background: #09090b;
+      color: #f4f4f5;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      width: 200px;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type=text]:focus, input[type=password]:focus, input[type=number]:focus, select:focus {
+      border-color: rgba(201, 165, 92, 0.4);
+      box-shadow: 0 0 0 2px rgba(201, 165, 92, 0.12);
+      outline: none;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #27272a;
+      transition: .15s ease-out;
+      border-radius: 18px;
+      border: 1px solid #3f3f46;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 10px;
+      width: 10px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #a1a1aa;
+      transition: .15s ease-out;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #c9a55c;
+      border-color: rgba(201, 165, 92, 0.3);
+    }
+    input:checked + .slider:before {
+      transform: translateX(18px);
+      background-color: #09090b;
+    }
+    button {
+      font-family: inherit;
+    }
+    #save {
+      background: #c9a55c;
+      color: #09090b;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 22px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    #save:hover {
+      opacity: 0.9;
+    }
+    #save:active {
+      transform: scale(0.98);
+    }
+    #gdriveConnect {
+      background: #27272a;
+      color: #fafafa;
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    #gdriveConnect:hover {
+      background: #3f3f46;
+      border-color: #52525b;
+    }
+    .hint {
+      color: #71717a;
+      font-size: 11px;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+    .saved {
+      color: #10b981;
+      font-size: 11px;
+      margin-left: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .saved.show {
+      opacity: 1;
+    }
+    .tip-card {
+      background: rgba(201, 165, 92, 0.02);
+      border: 1px dashed rgba(201, 165, 92, 0.15);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 12px;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
   <h1>pravq go — Settings</h1>
 
-  <h2>Auto Backup (Local)</h2>
-  <div class="row">
-    <label>Enable periodic local backups (chrome.storage.local)</label>
-    <input type="checkbox" id="autoBackupEnabled" />
-  </div>
-  <div class="row">
-    <label>Backup interval (minutes)</label>
-    <input type="number" id="autoBackupIntervalMin" min="1" max="1440" />
-  </div>
-
-  <h2>Remote Backup</h2>
-  <div class="row">
-    <label>Enable remote backup to a URL</label>
-    <input type="checkbox" id="remoteBackupEnabled" />
-  </div>
-  <div class="row">
-    <label>Remote backup URL (PUT endpoint)</label>
-    <input type="text" id="remoteBackupUrl" placeholder="https://your-server.com/canvas" />
-  </div>
-  <div class="row">
-    <label>Auth token (Bearer)</label>
-    <input type="password" id="remoteBackupAuthHeader" placeholder="optional API key" />
-  </div>
-  <div class="row">
-    <label>Remote sync interval (minutes)</label>
-    <input type="number" id="remoteBackupIntervalMin" min="1" max="1440" />
-  </div>
-  <div class="row">
-    <label>Push after every edit (debounced 2s)</label>
-    <input type="checkbox" id="remoteBackupOnEveryChange" />
-  </div>
-  <div class="hint">Remote endpoint receives: <code>PUT {url} Authorization: Bearer {token} {"canvas": {...}}</code></div>
-
-  <h2>Node Tabs</h2>
-  <div class="row">
-    <label>Open each node in its own pinned Chrome tab</label>
-    <input type="checkbox" id="openNodesInTabs" />
-  </div>
-  <div class="row">
-    <label>Tab mode</label>
-    <select id="tabMode">
-      <option value="pinned">Pinned tab</option>
-      <option value="popup">Popup window</option>
-      <option value="normal">Normal tab</option>
-    </select>
-  </div>
-  <div class="row">
-    <label>Sync edits in node tabs back to canvas</label>
-    <input type="checkbox" id="syncTabsToCanvas" />
-  </div>
-
-  <h2>Google Drive Sync</h2>
-  <div class="row">
-    <label>Enable Google Drive cloud sync</label>
-    <input type="checkbox" id="googleDriveSyncEnabled" />
-  </div>
-  <div class="row" style="align-items: flex-start; flex-direction: column; gap: 8px; margin-bottom: 20px;">
-    <button type="button" id="gdriveConnect" style="margin-top: 0; background: #3b5998; color: #fff; text-shadow: none;">Connect Google Drive</button>
-    <div id="gdriveStatus" style="font-size: 12px; color: #aaa; margin-top: 4px;">Status: Not connected</div>
-    <div class="hint" style="max-width: 500px; line-height: 1.4; color: #777;">
-      <strong>Security & Privacy Note:</strong> This feature uses Google Drive AppData storage. The extension is strictly restricted to its own private folder and <strong>cannot access or view</strong> any of your other personal files or folders in your drive. If disabled, all canvas data remains stored locally.
+  <!-- Local Backup Card -->
+  <div class="card">
+    <h2>Auto Backup (Local)</h2>
+    <div class="row">
+      <label>Enable periodic local backups (chrome.storage.local)</label>
+      <label class="switch">
+        <input type="checkbox" id="autoBackupEnabled" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="row">
+      <label>Backup interval (minutes)</label>
+      <input type="number" id="autoBackupIntervalMin" min="1" max="1440" />
     </div>
   </div>
 
-  <h2>Canvas</h2>
-  <div class="row">
-    <label>Enable privacy mode on launch</label>
-    <input type="checkbox" id="privacyModeOnOpen" />
+  <!-- Remote Backup Card -->
+  <div class="card">
+    <h2>Remote Backup</h2>
+    <div class="row">
+      <label>Enable remote backup to a URL</label>
+      <label class="switch">
+        <input type="checkbox" id="remoteBackupEnabled" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="row">
+      <label>Remote backup URL (PUT endpoint)</label>
+      <input type="text" id="remoteBackupUrl" placeholder="https://your-server.com/canvas" />
+    </div>
+    <div class="row">
+      <label>Auth token (Bearer)</label>
+      <input type="password" id="remoteBackupAuthHeader" placeholder="optional API key" />
+    </div>
+    <div class="row">
+      <label>Remote sync interval (minutes)</label>
+      <input type="number" id="remoteBackupIntervalMin" min="1" max="1440" />
+    </div>
+    <div class="row">
+      <label>Push after every edit (debounced 2s)</label>
+      <label class="switch">
+        <input type="checkbox" id="remoteBackupOnEveryChange" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="hint">Remote endpoint receives: <code>PUT {url} Authorization: Bearer {token} {"canvas": {...}}</code></div>
   </div>
 
-  <h2>Tips & Tricks</h2>
-  <div class="row" style="align-items:flex-start;">
-    <label style="line-height:1.5;">
-      <strong>Hide the "Customize Chrome" footer on the New Tab page:</strong><br/>
-      Right-click anywhere on the dark footer bar at the bottom of the new tab and select "Hide footer on New Tab page". Chrome will remember this preference!
-    </label>
+  <!-- Google Drive Sync Card -->
+  <div class="card">
+    <h2>Google Drive Sync</h2>
+    <div class="row row--vertical">
+      <button type="button" id="gdriveConnect">Connect Google Drive</button>
+      <div id="gdriveStatus" style="font-size: 11px; margin-top: 4px;">Status: Not connected</div>
+      <div class="hint" style="margin-top: 6px;">
+        <strong>Security & Privacy:</strong> Syncs your canvas data to an isolated folder in your personal drive. The extension has no access to any of your other Google Drive files. If disconnected, all canvas data remains stored locally.
+      </div>
+    </div>
+  </div>
+
+  <!-- Node Tabs Card -->
+  <div class="card">
+    <h2>Node Tabs</h2>
+    <div class="row">
+      <label>Open each node in its own pinned Chrome tab</label>
+      <label class="switch">
+        <input type="checkbox" id="openNodesInTabs" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="row">
+      <label>Tab mode</label>
+      <select id="tabMode">
+        <option value="pinned">Pinned tab</option>
+        <option value="popup">Popup window</option>
+        <option value="normal">Normal tab</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>Sync edits in node tabs back to canvas</label>
+      <label class="switch">
+        <input type="checkbox" id="syncTabsToCanvas" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Canvas Preferences Card -->
+  <div class="card">
+    <h2>Canvas</h2>
+    <div class="row">
+      <label>Enable privacy mode on launch</label>
+      <label class="switch">
+        <input type="checkbox" id="privacyModeOnOpen" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Tips & Tricks Card -->
+  <div class="tip-card">
+    <strong>Tip: Hide the "Customize Chrome" footer on the New Tab page</strong><br/>
+    Right-click anywhere on the dark footer bar at the bottom of the new tab and select "Hide footer on New Tab page". Chrome will remember this preference!
   </div>
 
   <button id="save">Save Settings <span class="saved" id="saved">✓ saved</span></button>
@@ -107,3 +292,4 @@
   <script type="module" src="options.js"></script>
 </body>
 </html>
+

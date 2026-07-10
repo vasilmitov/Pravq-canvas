@@ -89,3 +89,21 @@ When implementing cross-device synchronization:
 * **Interactive Testing**: Use `select_page` to focus on the target tab, then `take_snapshot` to extract element `uid`s. Use `click`, `fill`, and `type_text` to verify canvas behavior.
 * **Network & Log Auditing**: Use `list_network_requests` and `list_console_messages` against the background service worker page to verify auto-saves, alarm triggers, and remote API push status.
 
+---
+
+## 7. Developer & Local Test Environment
+
+* **Developer Profile**: The project creator is currently learning Chrome Extension development. This is their first browser extension project. All future agents must provide exceptionally clear, detailed, and step-by-step guidance.
+* **Test Account**: `vasilmitov@gmail.com`
+* **OAuth Consent Status**: The Google Cloud OAuth consent screen is in "Testing" mode. Any test account (like `vasilmitov@gmail.com`) must be explicitly whitelisted under the **Test Users** section of the Google Cloud Console for the OAuth authentication flow to succeed.
+
+---
+
+## 8. Path to Chrome Web Store Publishing
+
+To publish the extension publicly:
+1. **OAuth Status Change**: In the Google Cloud Console OAuth Consent screen, click **Publish App** to transition the app from "Testing" to "In production". This allows all public users to connect their Drive.
+2. **First Upload**: Zip the `extension/` directory (excluding `.git`, `node_modules`, etc.) and upload it to the Chrome Developer Dashboard. This registers the extension and assigns it its official, permanent **Web Store Extension ID**.
+3. **Re-bind OAuth Client ID**: Create a new OAuth Client ID of type "Chrome Extension" in the Google Cloud Console, and bind it to the new **official Web Store Extension ID**.
+4. **Update Manifest**: Replace the client ID in [manifest.json](file:///c:/Users/vasil/Documents/Pravq-go-canvas-extension/extension/manifest.json) with this new Web Store Client ID and upload a new version.
+5. **OAuth Verification**: Submit the OAuth consent screen for verification to Google. Since the extension requests the `drive.appdata` scope, Google requires a privacy policy URL and a short YouTube explanation video demonstrating how the extension uses their Google Drive files.

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "chrome-extension-development": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "chrome-extension-development/SKILL.md",
+      "computedHash": "973f0a7879af02b429af666256a15c9d2106387cd554252cbdd926fce11f472c"
+    }
+  }
+}

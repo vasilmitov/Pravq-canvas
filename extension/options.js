@@ -30,7 +30,8 @@ function updateGDriveUI(email) {
     status.textContent = 'Status: Not connected';
     status.style.color = '#aaa';
     btn.textContent = 'Connect Google Drive';
-    btn.style.background = '#3b5998';
+    btn.style.background = '#27272a';
+    btn.style.borderColor = '#3f3f46';
   }
 }
 
@@ -64,7 +65,6 @@ document.getElementById('gdriveConnect').addEventListener('click', () => {
         googleDriveSyncEmail: '',
         googleDriveSyncEnabled: false
       }, () => {
-        document.getElementById('googleDriveSyncEnabled').checked = false;
         updateGDriveUI('');
       });
     } else {
@@ -78,12 +78,12 @@ document.getElementById('gdriveConnect').addEventListener('click', () => {
           googleDriveSyncEmail: email,
           googleDriveSyncEnabled: true
         }, () => {
-          document.getElementById('googleDriveSyncEnabled').checked = true;
           updateGDriveUI(email);
         });
       } catch (err) {
         status.textContent = `Connection failed: ${err.message || err}`;
         status.style.color = '#c05050';
+        updateGDriveUI('');
       }
     }
   });
@@ -110,4 +110,5 @@ document.getElementById('save').addEventListener('click', () => {
     });
   });
 });
+
 
