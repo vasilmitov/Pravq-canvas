@@ -411,7 +411,12 @@ function CanvasInner() {
             variant={gridVariant}
             gap={28}
             size={settings.gridPattern === 'cross' ? 6 : settings.gridPattern === 'lines' ? 1 : 1.5}
-            color={`rgba(255,255,255,${settings.gridOpacity ?? 0.25})`}
+            color={`rgba(255,255,255,${
+              (settings.gridOpacity ?? 0.25) * (
+                settings.gridPattern === 'lines' ? 0.2 :
+                settings.gridPattern === 'cross' ? 0.4 : 1.0
+              )
+            })`}
           />
         )}
         <Controls showInteractive={false} showFitView={true} position="bottom-left" />
