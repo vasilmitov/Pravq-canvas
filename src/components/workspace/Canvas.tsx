@@ -406,7 +406,14 @@ function CanvasInner() {
         elevateNodesOnSelect={false}
         noDragClassName="nodrag" noWheelClassName="nowheel"
       >
-        {gridVariant && <Background variant={gridVariant} gap={28} size={1.5} color={`rgba(255,255,255,${settings.gridOpacity ?? 0.25})`} />}
+        {gridVariant && (
+          <Background
+            variant={gridVariant}
+            gap={28}
+            size={settings.gridPattern === 'cross' ? 6 : settings.gridPattern === 'lines' ? 1 : 1.5}
+            color={`rgba(255,255,255,${settings.gridOpacity ?? 0.25})`}
+          />
+        )}
         <Controls showInteractive={false} showFitView={true} position="bottom-left" />
         {settings.showMinimap && <MiniMap position="bottom-right" maskColor="rgba(0,0,0,0.6)" nodeColor="#333" pannable zoomable style={{ backgroundColor: '#141414', borderColor: '#2a2a2a' }} />}
       </ReactFlow>
