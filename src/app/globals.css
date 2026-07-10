@@ -145,6 +145,7 @@
 /* Override React Flow defaults for dark theme */
 .canvas-container .react-flow {
   background: var(--canvas-bg, #0a0a0a);
+  isolation: isolate;
 }
 /* Force transparency on the SVG background container to prevent it from painting
    a solid background over the grid pattern. */
